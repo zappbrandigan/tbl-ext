@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Table to CSV Exporter",
+  "version": "1.0.0",
+  "description": "Export an HTML table on a webpage to CSV format",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16-dark.png",
+      "48": "icons/icon48-dark.png",
+      "128": "icons/icon128-dark.png"
+    },
+    "theme_icons": [
+      { "light": "icons/icon16-light.png", "dark": "icons/icon16-dark.png", "size": 16 },
+      { "light": "icons/icon48-light.png", "dark": "icons/icon48-dark.png", "size": 48 },
+      { "light": "icons/icon128-light.png", "dark": "icons/icon128-dark.png", "size": 128 }
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

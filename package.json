@@ -1,0 +1,13 @@
+{
+  "name": "vieira-tbl-ext",
+  "private": true,
+  "version": "1.0.0",
+  "type": "commonjs",
+  "scripts": {
+    "build": "node scripts/build.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.21.5",
+    "javascript-obfuscator": "^4.1.0"
+  }
+}
