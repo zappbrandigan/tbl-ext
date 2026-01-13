@@ -2,6 +2,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getTables') {
     const tables = extractTablesFromPage();
     sendResponse({ tables });
+    return true;
+  }
+  if (request.action === 'getTableByIndex') {
+    const tables = extractTablesFromPage();
+    const table = tables[request.tableIndex] || null;
+    sendResponse({ table });
   }
   return true;
 });
