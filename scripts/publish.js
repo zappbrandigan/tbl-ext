@@ -5,8 +5,8 @@ const { spawn } = require('child_process');
 
 const ROOT_DIR = path.join(__dirname, '..');
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
-const MANIFEST_PATH = path.join(ROOT_DIR, 'src', 'manifest.json');
 const README_PATH = path.join(ROOT_DIR, 'README.md');
+const BUILD_SCRIPT = path.join(ROOT_DIR, 'scripts', 'build.js');
 
 function toSafeName(name) {
   return name
@@ -18,38 +18,44 @@ function toSafeName(name) {
     .replace(/^-+|-+$/g, '');
 }
 
-function runZip(cwd, outputZip, folderName) {
+function runCommand(command, args, cwd) {
   return new Promise((resolve, reject) => {
-    const zip = spawn('zip', ['-r', outputZip, folderName], { cwd });
+    const child = spawn(command, args, { cwd, stdio: 'inherit' });
 
-    zip.on('error', (error) => {
+    child.on('error', (error) => {
       reject(
         new Error(
-          `Failed to run zip. Make sure the 'zip' command is available: ${error.message}`
+          `Failed to run ${command}: ${error.message}`
         )
       );
     });
 
-    zip.on('close', (code) => {
+    child.on('close', (code) => {
       if (code === 0) {
         resolve();
         return;
       }
-      reject(new Error(`zip exited with code ${code}`));
+      reject(new Error(`${command} exited with code ${code}`));
     });
   });
 }
 
+function runZip(cwd, outputZip, folderName) {
+  return runCommand('zip', ['-r', outputZip, folderName], cwd);
+}
+
+function runBuild() {
+  return runCommand(process.execPath, [BUILD_SCRIPT], ROOT_DIR);
+}
+
 async function publish() {
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'publish-'));
-  const manifestRaw = await fs.readFile(MANIFEST_PATH, 'utf8');
-  const manifest = JSON.parse(manifestRaw);
-  const appName =
-    toSafeName(manifest.name || path.basename(ROOT_DIR)) || 'extension';
+  const appName = toSafeName(path.basename(ROOT_DIR)) || 'extension';
   const stagingDir = path.join(tempDir, appName);
   const outputZip = path.join(ROOT_DIR, `${appName}.zip`);
 
   try {
+    await runBuild();
     await fs.access(PUBLIC_DIR);
     await fs.access(README_PATH);
     await fs.rm(outputZip, { force: true });
